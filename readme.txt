@@ -1,12 +1,11 @@
-Gameboy LinkUp
-==============
+* Welcome
+Thanks for downloading Gameboy LinkUp
 
-Thanks for your interest in Gameboy LinkUp. This project is now hosted at
- https://bitbucket.org/JustinLloyd/gameboy-linkup
+Visit https://bitbucket.org/JustinLloyd/gameboy-linkup/overview for 
+more information and to download the latest version.
 
 
-License
-====================
+* License
                       DO WHATEVER PUBLIC LICENSE*
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
@@ -21,25 +20,21 @@ License
  Software originally created by Justin Lloyd @ http://otakunozoku.com/
 
 
-About
-====================
+* About
 This is a Gameboy and Gameboy Color client/server module for two player head-
 to-head games via a serial connection. First version as I recall was written 
 around 1993 or 1994 and then later updated in 1999. Someone might find this
 useful somewhere in the world.
     
-Pre-requisites
-====================
+* Pre-requisites
 1. RGBASM
 2. Two Nintendo Gameboys and a serial link-up cable or an emulator that 
    supports that feature.
 
-Using Gameboy LinkUp
-====================
+* Using Gameboy LinkUp
 1. You're on your own - read the code, fiddle around a bit.
 
-Support
-====================
+* Support
 Absolutely none provided.
 
 

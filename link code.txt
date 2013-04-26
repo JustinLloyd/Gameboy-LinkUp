@@ -1,0 +1,21 @@
+Tasks for Serial Link-Up
+========================
+
+Things that I need to provide
+=============================
+Exchange two bytes at fixed memory location
+Wait/Timeout loop (with programmer defined delay) that waits for other player
+Master/Slave flag
+Link-Mode game flag
+Detect disconnection code
+Serial I/O interrupt
+Checksum (maybe we don't want this)
+General purpose "exchange byte" function
+
+
+Things that Slitherine need to provide
+======================================
+Disable pause button if in link-mode
+Graceful handling of disconnection
+End of game detection
+Begin game detection

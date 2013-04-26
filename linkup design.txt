@@ -1,0 +1,69 @@
+void main()
+	{
+	send_byte(k_SLAVE_CODE) ;
+
+
+LinkUp
+	Player A presses "Start two player game"
+	done = false
+	timeout = 60 vbls * 30
+	exit_condition = none
+	While exit_condition = none
+		Player A 
+		Scan joypad
+		If joypad = "quit" then
+			exit condition = player_quit
+		timeout--
+		if timeout <= 0
+			exit condition = timeout
+
+		serial_port_send(slave_code)
+		connect_code = serial_port_read()
+		if connect_code == slave_code
+			exit_condition = connected
+
+	wend
+
+	if exit_condition = timeout
+		display screen that tells player "other player did not connect"
+		wait for keypress
+		exit to main menu
+	if exit_condition = player_quit
+		exit to main menu
+
+	if exit_condition = connected
+		g_isMaster = true
+		exchange game data
+
+
+
+game loop
+	set up serial interrupt
+	set up timer interrupt
+	while game is executing
+
+
+serial_port_send(char value)
+	{
+	serial_output_register = value ;
+
+	if (g_isMaster)
+		{
+		serial_control_register = send with internal clock
+		}
+
+	}
+
+connect
+	{
+	set up sio interrupt
+	send 
+	}
+
+	char	transmit_buffer[10] ;
+	char	receive_buffer[10] ;
+	
+
+	char	transmit_entry = 0 ;
+	char	receive_entry = 0 ;
+

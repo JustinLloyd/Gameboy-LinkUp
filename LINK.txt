@@ -1,0 +1,221 @@
+Gameboy A
+
+// uses a unique packet number tag that ranges between 1 and 127 to identify the packet
+// if the packet number between client & server get out of sync, there has been a
+// communications error.
+
+// to determine which is client and which is server, both machines send a series of random numbers
+// between 1 and 254. Whichever machine has the higher number is the server. Simple as that.
+
+// In the event of a communications failure, one gameboy is switched off, or the cable is unplugged
+// the code that waits for SIO complete should include a timeout.
+
+// This function is called when the menu's are initialised.
+void serial_init()
+	{
+	sio_interrupt = sio_interrupt_menu() ;
+	rd = 0 ;
+	g_isConnected = FALSE ;
+	g_isServer = FALSE ;
+	serial_byte = k_CLIENT ;
+	serial_control = k_BEGIN_TRANSMISSION | k_EXTERNAL_CLOCK ;
+	}
+
+void sio_interrupt_menu()
+	{
+	rd = (SB) ;
+	if (rd == CLIENT)
+		{
+		g_isConnected = TRUE ;
+		g_isServer = TRUE ;
+		return ;
+		}
+
+	if (rd == SERVER)
+		{
+		g_isConnected = TRUE ;
+		g_isServer = FALSE ;
+		return ;
+		}
+
+	(SB) = CLIENT ;
+	(SC) = k_BEGIN_TRANSMISSION | k_EXTERNAL_CLOCK ;
+	}
+
+
+
+// this is the main menu
+void main_menu()
+	{
+	serial_init() ;
+	exitCode = NO_EXIT ;
+	while (exitCode==NO_EXIT)
+		{
+		ScanJoypad() ;
+		if (g_joypad == k_JOY_START)
+			{
+			exitCode = k_TWO_PLAYER ;
+			}
+
+		if (g_isConnected)
+			{
+			exitCode = k_START_TWO_PLAYER ;
+			}
+
+		}
+
+	if (exitCode == k_TWO_PLAYER)
+		{
+		StartTwoPlayerGame() ;
+		}
+	else if (exitCode == k_START_TWO_PLAYER)
+		{
+
+		}
+
+	}
+
+
+// This function is called once the player has pressed "two player game" on the main menu.
+
+void two_player_setup()
+	{
+	set timeout to max value
+	exit_code = connecting
+	get a random number
+	place random number
+	while exit_code = connecting
+		
+		if timeout is zero
+			exit_code = no_connection
+
+	wend
+
+	// get a random number
+
+	packet_number = 1 ;
+
+	// read serial port
+	received = serial_byte ;
+	// if received SERVER code
+	if (received == k_SERVER)
+		{
+		// received server code, this is the client
+		}
+	else
+		{
+		// tell other gameboy that I am server
+		serial_byte = k_SERVER ;
+		serial_control = k_BEGIN_TRANSMISSION | k_INTERNAL_CLOCK ;
+		while ((!done) && (timeout>0))
+			{
+			// read serial port
+			received = serial_byte ;
+			// if received client code
+			if (received == k_CLIENT)
+				{
+				// everything's good, we are server, other gameboy is client
+				}
+			else if (received == k_SERVER)
+				{
+				// other gameboy wants to be server, need to resync
+				}
+			else if (received == k_NO_CONNECTION)
+				{
+				// report no connection
+				}
+
+			serial_byte = k_SERVER ;
+			serial_control = k_BEGIN_TRANSMISSION | k_INTERNAL_CLOCK ;
+			timeout-- ;
+			}
+
+		}
+
+	sio_interrupt = sio_game_interrupt() ;
+	}
+
+void send_packet()
+	{
+	tx_packet[k_PACKET_LENGTH] = packet_number ;
+	packet_number = ((packet_number+1) % 0x7F + 1 ;
+	packet_index = 0 ;
+	sio_complete = FALSE ;
+	sio_error = FALSE ;
+	serial_byte = tx_packet[0] ;
+	if (g_isServer)
+		{
+		serial_control = k_BEGIN_TRANSMISSION | k_INTERNAL_CLOCK ;
+		}
+	else
+		{
+		serial_control = k_BEGIN_TRANSMISSION ;
+		}
+
+	}
+
+void game_sio_interrupt()
+	{
+	rx_byte = serial_read() ;
+	if (packet_index == k_PACKET_LENGTH)
+		{
+		if (rx_byte!=g_packetNumber)
+			{
+			sio_error = TRUE ;
+			}
+
+		if (rx_byte==0x00 || rx_byte==0xFF)
+			{
+			g_connectState = k_CONNECTION_LOST ;
+			}
+
+		sio_complete = TRUE ;
+		}
+	else
+		{
+		serial_write(hiram[packet_index+0x81]) ;
+		hiram[packet_index+0x81] = rx_byte ;
+		packet_index++ ;
+		}
+
+	}
+
+
+void wait_for_io()
+	{
+	WORD	sio_timeout ;
+
+	sio_timeout = 20000 ; // counting down from 20000 takes about 1 video frame
+	while ((!sio_complete) && (sio_timeout > 0))
+		{
+		sio_timeout-- ;
+		}
+
+	if ((sio_timeout == 0) || (sio_error == TRUE))
+		{
+		// display an error message, communication lost!
+		// wait for a key press
+		}
+
+	}		
+
+void game_loop()
+	{
+	while (player_is_alive)
+		{
+		wait_until_vbl_done() ;
+		send_packet() ;
+		game_processing() ;
+		wait_for_io() ;
+		// if communications error occured
+		if (sio_error == TRUE)
+			{
+			// exit game loop to main menu
+			break ;
+			}
+
+		// update remote player data on this machine
+		update_remote_player() ;
+		}
+
+	}
